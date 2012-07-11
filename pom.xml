@@ -13,6 +13,7 @@
         <module>aether</module>
         <module>indexer</module>
         <module>resteasy</module>
+        <module>mapreduce</module>
     </modules>
 
     <properties>
