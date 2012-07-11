@@ -35,7 +35,7 @@ public class TransferListener extends AbstractTransferListener {
     @Override
     public void transferStarted( TransferEvent transferEvent )
     {
-        LOGGER.info("  Downloading " + transferEvent.getResource().getName());
+        LOGGER.info("Downloading " + transferEvent.getResource().getName());
         timestamp = transferEvent.getTimestamp();
         long totalSize;
         this.transfer = 0;

@@ -37,22 +37,10 @@ import java.util.Set;
  */
 public class SimpleRun {
     public static void main(String[] args) throws IOException, PlexusContainerException, ComponentLookupException, UnsupportedExistingLuceneIndexException, ParseException {
-//        IndexUpdater updater = new IndexUpdater();
-//        updater.update();
+
         IndexSearcher searcher =  new IndexSearcher();
+        searcher.update();
         Set<ArtifactInfo> result = searcher.getUniqueGAV();
         System.out.println("result.size() = " + result.size());
-//
-//        List<String> groups = new ArrayList<String>();
-//        groups.add("org.mule.examples");
-//        List<String> packaging = new ArrayList<String>();
-//        packaging.add("jar");
-//          packaging.add("war");
-//        packaging.add("ear");
-//
-//        Map<String, ArtifactInfoGroup> groupMap = searcher.searchIndexGrouped(groups, packaging);
-//        for (String s : groupMap.keySet()) {
-//            System.out.println("groupMap = " + groupMap.get(s));
-//        }
     }
 }

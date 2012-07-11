@@ -53,8 +53,8 @@ public class IndexUpdater {
     // Create context for central repository index
     IndexingContext centralContext;
     // Files where local cache is (if any) and Lucene Index should be located
-    File centralLocalCache = new File( "/home/pieter/indexer/central-cache" );
-    File centralIndexDir = new File( "/home/pieter/indexer/central-index" );
+    File centralLocalCache = new File( "target/indexer/central-cache" );
+    File centralIndexDir = new File( "target/indexer/central-index" );
 
     public IndexUpdater() throws PlexusContainerException, ComponentLookupException, IOException {
         plexus = new DefaultPlexusContainer();
@@ -64,36 +64,16 @@ public class IndexUpdater {
         // Creators we want to use (search for fields it defines)
         List<IndexCreator> indexers = new ArrayList<IndexCreator>();
         indexers.add( plexus.lookup( IndexCreator.class, "min" ) );
-        indexers.add(new MinimalArtifactInfoIndexCreator());
-        indexers.add( plexus.lookup( IndexCreator.class, "jarContent" ) );
-        indexers.add( plexus.lookup( IndexCreator.class, "maven-plugin" ) );
         centralContext =
-//        nexusIndexer.addIndexingContextForced( "central", "central", centralLocalCache, centralIndexDir,
-//                "http://repo1.maven.org/maven2",null, indexers );
         nexusIndexer.addIndexingContextForced( "central", "central", centralLocalCache, centralIndexDir,
                 "http://nexus.pieni.nl/nexus/content/groups/public/", null, indexers );
-
-
-//        indexer.addIndexingContext(
-//                repository.getId(), //Id of the context
-//                repository.getId(), //Id of the repository
-//                new File(repository.getBasedir() + repository.getId()), // directory containing repository
-//                outputDirectory, // directory where index will be stored
-//                repository.getUrl(), //"http://nexus.pieni.nl/nexus/content/repositories/public/", // remote repository url
-//                repository.getUrl() + "/.index/", //"http://nexus.pieni.nl/nexus/content/repositories/public/.index/", // index update url
-//                indexCreators
-//        );
-
-//        nexusIndexer.addIndexingContextForced( "central-context", "central", centralLocalCache, centralIndexDir,
-//                "http://mirrors.ibiblio.org/pub/mirrors/maven2/", null, indexers );
-
     }
 
     IndexingContext getIndexContext() {
         return centralContext;
     }
 
-    public void update() throws ComponentLookupException, IOException {
+    public IndexUpdateResult update() throws ComponentLookupException, IOException {
         ResourceFetcher resourceFetcher = new WagonHelper.WagonFetcher( wagon, listener, null, null );
 
         Date centralContextCurrentTimestamp = centralContext.getTimestamp();
@@ -115,6 +95,8 @@ public class IndexUpdater {
         }
 
         System.out.println();
+
+        return updateResult;
 
 
     }

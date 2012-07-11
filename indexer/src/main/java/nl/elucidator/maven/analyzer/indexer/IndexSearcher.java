@@ -51,17 +51,18 @@ public class IndexSearcher {
     private final static Logger LOGGER = LoggerFactory.getLogger(IndexSearcher.class);
     // create Plexus IoC (actually SISU-plexus compat)
     private final DefaultPlexusContainer plexus;
-    // lookup the indexer instance from plexus
-    private final NexusIndexer nexusIndexer;
     private final IndexUpdater indexUpdater;
 
     public IndexSearcher() throws PlexusContainerException, ComponentLookupException, IOException {
         plexus = new DefaultPlexusContainer();
-        nexusIndexer = plexus.lookup( NexusIndexer.class );
         indexUpdater = new IndexUpdater();
     }
 
-    public Set<ArtifactInfo> getUniqueGAV() {
+    public void update() throws IOException, ComponentLookupException {
+        indexUpdater.update();
+    }
+
+    public Set<ArtifactInfo> getUniqueGAV() throws IOException, ComponentLookupException {
         IndexingContext centralContext = indexUpdater.getIndexContext();
         centralContext.lock();
         Set<ArtifactInfo> artifactInfoSet =  new HashSet<>();
@@ -82,83 +83,13 @@ public class IndexSearcher {
             }
 
         } catch (CorruptIndexException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         } finally
         {
             centralContext.unlock();
         }
        return artifactInfoSet;
     }
-
-    public Map<String, ArtifactInfoGroup> searchIndexGrouped( final List<String> groupPatterns,  final List<String> packaging) throws IOException, UnsupportedExistingLuceneIndexException, ComponentLookupException {
-
-        indexUpdater.update();
-
-
-        BooleanQuery bq = createQuery(groupPatterns, packaging);
-
-        GroupedSearchRequest request = new GroupedSearchRequest(bq, new GAGrouping());
-        // Perform the search
-        GroupedSearchResponse response = nexusIndexer.searchGrouped(request);
-
-        LOGGER.info("Query resulted in: " + response.getTotalHitsCount() + " hits");
-        // Return the artifact info objects
-        return response.getResults();
-    }
-
-    /**
-     * Create the query to perform
-     * @param groupPatterns list of patters to search for
-     * @param packaging the packinging of the artifact searched for
-     * @return {@link BooleanQuery}
-     */
-    private BooleanQuery createQuery( final List<String> groupPatterns,  final List<String> packaging) {
-        BooleanQuery bq = new BooleanQuery();
-//        Query gidQ =
-//                nexusIndexer.constructQuery( MAVEN.GROUP_ID, new SourcedSearchExpression( "org.apache.maven.indexer" ) );
-//        Query aidQ =
-//                nexusIndexer.constructQuery( MAVEN.ARTIFACT_ID, new SourcedSearchExpression( "indexer-artifact" ) );
-//
-//        bq = new BooleanQuery();
-//        bq.add( gidQ, BooleanClause.Occur.MUST );
-//        bq.add( aidQ, BooleanClause.Occur.MUST );
-//
-//        LOGGER.info("Created query: " + bq);
-//        return bq;
-
-        Query query;
-
-        Field field = MAVEN.GROUP_ID;
-        BooleanQuery groupQuery = new BooleanQuery();
-        for (String pattern : groupPatterns) {
-            if (pattern.endsWith("*")) {
-                query = nexusIndexer.constructQuery(field, pattern, SearchType.EXACT);
-            } else {
-                query = nexusIndexer.constructQuery(field, pattern + "*", SearchType.EXACT);
-            }
-            groupQuery.add(query, BooleanClause.Occur.SHOULD);
-        }
-        bq.add(groupQuery, BooleanClause.Occur.MUST);
-
-
-
-        BooleanQuery packagingQuery = new BooleanQuery();
-        for (String pack : packaging) {
-            Query q = nexusIndexer.constructQuery(MAVEN.PACKAGING, pack, SearchType.EXACT);
-            packagingQuery.add(q, BooleanClause.Occur.SHOULD);
-        }
-
-        bq.add(packagingQuery, BooleanClause.Occur.MUST);
-
-        Query queryClassifierSources = nexusIndexer.constructQuery(MAVEN.CLASSIFIER, "sources", SearchType.EXACT);
-        Query queryClassifierJavaDoc = nexusIndexer.constructQuery(MAVEN.CLASSIFIER, "javadoc", SearchType.EXACT);
-
-        bq.add(new BooleanClause(queryClassifierJavaDoc, BooleanClause.Occur.MUST_NOT));
-        bq.add(new BooleanClause(queryClassifierSources, BooleanClause.Occur.MUST_NOT));
-        LOGGER.info("Created query: " + bq);
-        return bq;
-    }
-
 }

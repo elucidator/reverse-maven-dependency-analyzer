@@ -33,8 +33,8 @@ public class ResolveArtifact
 //        DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
 
         //DefaultArtifact artifact = new DefaultArtifact("org.apache.maven.shared:maven-dependency-analyzer:1.2");
-        //DefaultArtifact artifact = new DefaultArtifact("nl.pieni.maven.dependency-analyzer:maven-dependency-analyzer:0.8");
-        DefaultArtifact artifact = new DefaultArtifact("org.apache.maven.plugins:maven-compiler-plugin:2.3");
+        DefaultArtifact artifact = new DefaultArtifact("nl.pieni.maven.dependency-analyzer:maven-dependency-analyzer:0.8");
+        //DefaultArtifact artifact = new DefaultArtifact("org.apache.maven.plugins:maven-compiler-plugin:2.3");
 
         CollectRequest collectRequest = new CollectRequest();
         collectRequest.setRoot( new Dependency( artifact, JavaScopes.COMPILE ) );

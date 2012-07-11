@@ -35,7 +35,7 @@ public class Booter
 
     public static RemoteRepository newCentralRepository()
     {
-        return new RemoteRepository( "central", "default", "http://nexus.pieni.nl/nexus/" );
+        return new RemoteRepository( "central", "default", "http://nexus.pieni.nl/nexus/content/groups/public/" );
     }
 
 }
