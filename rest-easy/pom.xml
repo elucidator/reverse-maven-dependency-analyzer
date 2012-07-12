@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>nl.elucidator.maven</groupId>
+        <groupId>nl.elucidator.maven.analyzer</groupId>
         <artifactId>reverse-dependency-analyzer</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>

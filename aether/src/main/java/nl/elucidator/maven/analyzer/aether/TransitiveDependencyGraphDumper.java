@@ -19,6 +19,9 @@ package nl.elucidator.maven.analyzer.aether;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -30,6 +33,7 @@ import java.util.Stack;
  */
 public class TransitiveDependencyGraphDumper implements DependencyVisitor {
     Stack<DependencyNode> stack = new Stack<DependencyNode>();
+    List<String> nodes = new ArrayList<>();
 
     @Override
     public boolean visitEnter(DependencyNode node) {
@@ -37,8 +41,7 @@ public class TransitiveDependencyGraphDumper implements DependencyVisitor {
             stack.push(node);
             return true;
         }
-
-        System.out.println(stack.peek().getDependency().getArtifact() + " -> " + node.getDependency().getArtifact() + "-> " + node.getDependency().getScope());
+        nodes.add(stack.peek().getDependency().getArtifact() + " -> " + node.getDependency().getArtifact() + "-> " + node.getDependency().getScope());
         stack.push(node);
 
         return true;
@@ -50,5 +53,9 @@ public class TransitiveDependencyGraphDumper implements DependencyVisitor {
             stack.pop();
         }
         return true;
+    }
+
+    public Collection<? extends String> getNodes() {
+        return nodes;
     }
 }

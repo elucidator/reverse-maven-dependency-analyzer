@@ -19,6 +19,11 @@ package nl.elucidator.maven.analyzer.aether;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: pieter
@@ -28,6 +33,7 @@ import org.sonatype.aether.graph.DependencyVisitor;
  */
 public class FlatDependencyGraphDumper implements DependencyVisitor {
     private DependencyNode root;
+    List<String> nodes = new ArrayList<>();
     @Override
     public boolean visitEnter(DependencyNode node) {
         if (root == null) {
@@ -35,12 +41,16 @@ public class FlatDependencyGraphDumper implements DependencyVisitor {
             return true;
         }
 
-        System.out.println(root.getDependency().getArtifact() + " -> " + node.getDependency().getArtifact() + "-> " + node.getDependency().getScope());
+        nodes.add(root.getDependency().getArtifact() + " -> " + node.getDependency().getArtifact() + "-> " + "resolved");
         return true;
     }
 
     @Override
     public boolean visitLeave(DependencyNode node) {
         return true;
+    }
+
+    public Collection<? extends String> getNodes() {
+        return nodes;
     }
 }

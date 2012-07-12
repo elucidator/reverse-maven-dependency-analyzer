@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.elucidator.maven</groupId>
+    <groupId>nl.elucidator.maven.analyzer</groupId>
     <artifactId>reverse-dependency-analyzer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -30,7 +30,8 @@
         <module>indexer</module>
         <module>rest-easy</module>
         <module>map-reduce</module>
-
+        <module>database</module>
+        <module>pre-processor</module>
     </modules>
 
     <properties>
