@@ -16,7 +16,7 @@
 
 package nl.elucidator.maven.analyzer.database.model;
 
-import nl.elucidator.maven.analyzer.database.DependencyRepository;
+import nl.elucidator.maven.analyzer.database.ArtifactRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,23 +26,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/2/12
- * Time: 8:21 PM
- * To change this template use File | Settings | File Templates.
+ * Test cases
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/database-context.xml"})
 public class ArtifactTest {
 
     @Autowired
-    DependencyRepository dependencyRepository;
+    ArtifactRepository artifactRepository;
 
     @Autowired
     Neo4jOperations template;
@@ -83,7 +77,7 @@ public class ArtifactTest {
         artifact.addVersion(version1_1);
         template.save(artifact);
 
-        Artifact retrieved = this.dependencyRepository.findById(artifact.getGa());
+        Artifact retrieved = this.artifactRepository.findByGa(artifact.getGa());
 
         Iterable<Version> versionRelations = retrieved.getVersions();
         assertTrue(versionRelations.iterator().hasNext());
@@ -104,7 +98,7 @@ public class ArtifactTest {
         artifact = template.save(artifact);
         System.out.println("artifact.getNodeId() = " + artifact.getNodeId());
 
-        Artifact retrieved = this.dependencyRepository.findById(artifact.getGa());
+        Artifact retrieved = this.artifactRepository.findByGa(artifact.getGa());
 
         Iterable<Version> versionRelations = retrieved.getVersions();
 
@@ -120,10 +114,10 @@ public class ArtifactTest {
         template.save(versionA);
         System.out.println("versionA = " + template.save(versionA).getNodeId());
 
-        Version versionB =  new Version("c1");
+        Version versionB = new Version("c1");
         template.save(versionB);
 
-        DependencyRelation dependencyRelation = new DependencyRelation("compile", versionA, versionB);
+        DependencyRelation dependencyRelation = new DependencyRelation(Scope.Compile, versionA, versionB);
         versionA.addDependency(dependencyRelation);
         template.save(dependencyRelation);
 

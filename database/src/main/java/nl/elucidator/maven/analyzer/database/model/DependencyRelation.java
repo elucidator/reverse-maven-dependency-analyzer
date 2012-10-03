@@ -27,15 +27,17 @@ import org.springframework.data.neo4j.annotation.StartNode;
  * Note that the relations are not loaded eagerly by Spring.
  * Thus to get the {@link Version} nodes you must load explicitly.
  */
-@RelationshipEntity (type = RelationType.DEPENDENCY)
+@RelationshipEntity(type = RelationType.DEPENDENCY)
 public class DependencyRelation {
     @GraphId
     private Long nodeId;
-    private String scope;
-    @StartNode Version startNode;
-    @EndNode Version endNode;
+    private Scope scope;
+    @StartNode
+    Version startNode;
+    @EndNode
+    Version endNode;
 
-    public DependencyRelation(String scope, Version startNode, Version endNode) {
+    public DependencyRelation(Scope scope, Version startNode, Version endNode) {
         this.scope = scope;
         this.startNode = startNode;
         this.endNode = endNode;
@@ -48,7 +50,7 @@ public class DependencyRelation {
         return nodeId;
     }
 
-    public String getScope() {
+    public Scope getScope() {
         return scope;
     }
 

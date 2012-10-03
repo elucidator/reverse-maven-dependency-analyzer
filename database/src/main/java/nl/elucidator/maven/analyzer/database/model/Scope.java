@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package nl.elucidator.maven.analyzer.database;
+package nl.elucidator.maven.analyzer.database.model;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/2/12
- * Time: 7:49 PM
- * To change this template use File | Settings | File Templates.
+ * Dependency scopes
  */
-public class Db {
+public enum Scope {
+    Compile,
+    Runtime,
+    Provided,
+    Test
 }

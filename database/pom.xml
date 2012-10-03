@@ -31,73 +31,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.1.0.RELEASE</spring.version>
+        <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.6.1</slf4j.version>
         <spring-data-neo4j.version>2.1.0.BUILD-SNAPSHOT</spring-data-neo4j.version>
         <aspectj.version>1.7.0</aspectj.version>
-        <neo4j.version>1.8.RC1</neo4j.version>
+        <neo4j.version>1.8</neo4j.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>spring-maven-release</id>
-            <name>Spring Maven Release Repository</name>
-            <url>http://maven.springframework.org/release</url>
-        </repository>
-        <repository>
-            <id>spring-maven-snapshot</id>
-            <name>Spring Maven Snapshot Repository</name>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>http://maven.springframework.org/snapshot</url>
-        </repository>
-        <repository>
-            <id>spring-maven-milestone</id>
-            <name>Spring Maven Milestone Repository</name>
-            <url>http://maven.springframework.org/milestone</url>
-        </repository>
-        <repository>
-            <id>neo4j-release-repository</id>
-            <name>Neo4j Maven 2 release repository</name>
-            <url>http://m2.neo4j.org/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>neo4j-snapshot-repository</id>
-            <name>Neo4j Maven 2 snapshot repository</name>
-            <url>http://m2.neo4j.org/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>jboss-public-repo</id>
-            <url>http://repository.jboss.org/maven2/</url>
-            <name>JBoss public available repo</name>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>spring-maven-release</id>
-            <name>Spring Maven Release Repository</name>
-            <url>http://maven.springframework.org/release</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>spring-maven-milestone</id>
-            <name>Spring Maven Milestone Repository</name>
-            <url>http://maven.springframework.org/milestone</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <!-- Spring dependencies -->
@@ -305,36 +245,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>7.6.5.v20120716</version>
-                <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                    <stopKey>foo</stopKey>
-                    <stopPort>9999</stopPort>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-jetty</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <daemon>true</daemon>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-jetty</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
 
             <plugin>
                 <!-- Must use java 1.5 or higher for annotations -->
@@ -346,22 +257,7 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.1</version>
-                <configuration>
-                    <useFile>true</useFile>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                        <include>**/*Test.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/Abstract*.java</exclude>
-                    </excludes>
-                    <junitArtifactName>junit:junit</junitArtifactName>
-                </configuration>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>

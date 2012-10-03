@@ -22,14 +22,12 @@ import org.springframework.data.neo4j.repository.NamedIndexRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/2/12
- * Time: 11:23 PM
- * To change this template use File | Settings | File Templates.
+ * Data Repository for Artifacts
+ * (Spring does all the magic @see http://java.dzone.com/articles/domain-modeling-spring-data)
  */
-public interface DependencyRepository extends GraphRepository<Artifact>,
+public interface ArtifactRepository extends GraphRepository<Artifact>,
         NamedIndexRepository<Artifact>,
         RelationshipOperationsRepository<Artifact> {
-        Artifact findById(String ga);
+
+    Artifact findByGa(String ga);
 }

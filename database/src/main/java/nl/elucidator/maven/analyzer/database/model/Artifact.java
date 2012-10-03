@@ -16,10 +16,10 @@
 
 package nl.elucidator.maven.analyzer.database.model;
 
-import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.*;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Node entity for Artifacts
@@ -30,7 +30,7 @@ public class Artifact {
     @GraphId
     private Long nodeId;
     @Indexed
-    private String id;
+    private String ga;
     private String groupId;
     private String artifactId;
 
@@ -39,8 +39,6 @@ public class Artifact {
     @RelatedTo(type = RelationType.VERSION)
     @Fetch
     private Set<Version> versions;
-
-
 
 
     /**
@@ -52,17 +50,19 @@ public class Artifact {
 
     /**
      * Default constructor
-     * @param groupId  groupId
+     *
+     * @param groupId    groupId
      * @param artifactId artifactId
      */
     public Artifact(String groupId, String artifactId) {
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.id = groupId + ":" + artifactId;
+        this.ga = groupId + ":" + artifactId;
     }
 
     /**
      * Add a {@link Version}
+     *
      * @param version version
      */
     public void addVersion(final Version version) {
@@ -86,7 +86,7 @@ public class Artifact {
     }
 
     public String getGa() {
-        return id;
+        return ga;
     }
 
     public Set<Version> getVersions() {
@@ -97,7 +97,7 @@ public class Artifact {
     public String toString() {
         return "Artifact{" +
                 "nodeId=" + nodeId +
-                ", id='" + id + '\'' +
+                ", ga='" + ga + '\'' +
                 ", groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
 //                ", versions=" + versions +
