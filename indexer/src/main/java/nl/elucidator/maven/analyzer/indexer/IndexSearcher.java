@@ -19,40 +19,32 @@ package nl.elucidator.maven.analyzer.indexer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.maven.index.*;
-import org.apache.maven.index.context.IndexCreator;
+import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
-import org.apache.maven.index.context.UnsupportedExistingLuceneIndexException;
-import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
-import org.apache.maven.index.expr.SourcedSearchExpression;
-import org.apache.maven.index.search.grouping.GAGrouping;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.ArtifactRepository;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 6/13/12
- * Time: 8:53 AM
- * To change this template use File | Settings | File Templates.
+ * Search over index
  */
 public class IndexSearcher {
     private final static Logger LOGGER = LoggerFactory.getLogger(IndexSearcher.class);
     // create Plexus IoC (actually SISU-plexus compat)
     private final DefaultPlexusContainer plexus;
     private final IndexUpdater indexUpdater;
+
+    public IndexSearcher(final String repoUrl) throws PlexusContainerException, ComponentLookupException, IOException {
+        plexus = new DefaultPlexusContainer();
+        indexUpdater = new IndexUpdater(repoUrl);
+    }
 
     public IndexSearcher() throws PlexusContainerException, ComponentLookupException, IOException {
         plexus = new DefaultPlexusContainer();
@@ -66,17 +58,14 @@ public class IndexSearcher {
     public Set<ArtifactInfo> getUniqueGAV() throws IOException, ComponentLookupException {
         IndexingContext centralContext = indexUpdater.getIndexContext();
         centralContext.lock();
-        Set<ArtifactInfo> artifactInfoSet =  new HashSet<>();
+        Set<ArtifactInfo> artifactInfoSet = new HashSet<ArtifactInfo>();
 
-        try
-        {
+        try {
             final IndexReader ir = centralContext.getIndexReader();
 
-            for ( int i = 0; i < ir.maxDoc(); i++ )
-            {
-                if ( !ir.isDeleted( i ) )
-                {
-                    final Document doc = ir.document( i );
+            for (int i = 0; i < ir.maxDoc(); i++) {
+                if (!ir.isDeleted(i)) {
+                    final Document doc = ir.document(i);
 
                     final ArtifactInfo ai = IndexUtils.constructArtifactInfo(doc, centralContext);
                     artifactInfoSet.add(ai);
@@ -87,10 +76,9 @@ public class IndexSearcher {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally
-        {
+        } finally {
             centralContext.unlock();
         }
-       return artifactInfoSet;
+        return artifactInfoSet;
     }
 }

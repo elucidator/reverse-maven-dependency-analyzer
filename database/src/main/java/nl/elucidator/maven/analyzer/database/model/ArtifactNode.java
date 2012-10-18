@@ -16,6 +16,7 @@
 
 package nl.elucidator.maven.analyzer.database.model;
 
+import org.sonatype.aether.artifact.Artifact;
 import org.springframework.data.neo4j.annotation.*;
 
 import java.util.HashSet;
@@ -25,28 +26,36 @@ import java.util.Set;
  * Node entity for Artifacts
  */
 @NodeEntity
-public class Artifact {
+public class ArtifactNode {
 
     @GraphId
     private Long nodeId;
-    @Indexed
+    @Indexed(unique = true)
     private String ga;
     private String groupId;
     private String artifactId;
 
-    //The Fetch is acceptable cause there is a limited set of versions
-    //associated with a Artifact
+    //The Fetch is acceptable cause there is a limited set of versionNodes
+    //associated with a ArtifactNode
     @RelatedTo(type = RelationType.VERSION)
     @Fetch
-    private Set<Version> versions;
+    private Set<VersionNode> versionNodes;
+    private String classifier;
 
 
     /**
      * Constructor required by Spring
      */
-    private Artifact() {
+    private ArtifactNode() {
         //Empty
     }
+
+    public ArtifactNode(final Artifact artifact) {
+        this.artifactId = artifact.getArtifactId();
+        this.groupId = artifact.getGroupId();
+        this.ga = this.groupId + ":" + this.artifactId;
+    }
+
 
     /**
      * Default constructor
@@ -54,23 +63,23 @@ public class Artifact {
      * @param groupId    groupId
      * @param artifactId artifactId
      */
-    public Artifact(String groupId, String artifactId) {
+    public ArtifactNode(String groupId, String artifactId) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.ga = groupId + ":" + artifactId;
     }
 
     /**
-     * Add a {@link Version}
+     * Add a {@link VersionNode}
      *
-     * @param version version
+     * @param versionNode versionNode
      */
-    public void addVersion(final Version version) {
-        if (versions == null) {
-            versions = new HashSet<Version>();
+    public void addVersion(final VersionNode versionNode) {
+        if (versionNodes == null) {
+            versionNodes = new HashSet<VersionNode>();
         }
 
-        versions.add(version);
+        versionNodes.add(versionNode);
     }
 
     public Long getNodeId() {
@@ -89,18 +98,18 @@ public class Artifact {
         return ga;
     }
 
-    public Set<Version> getVersions() {
-        return versions;
+    public Set<VersionNode> getVersionNodes() {
+        return versionNodes;
     }
 
     @Override
     public String toString() {
-        return "Artifact{" +
+        return "ArtifactNode{" +
                 "nodeId=" + nodeId +
                 ", ga='" + ga + '\'' +
                 ", groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
-//                ", versions=" + versions +
+                ", versionNodes=" + versionNodes +
                 '}';
     }
 }

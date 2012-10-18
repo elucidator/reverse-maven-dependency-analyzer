@@ -17,13 +17,11 @@
 package nl.elucidator.maven.analyzer.database.model;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/3/12
- * Time: 9:15 AM
- * To change this template use File | Settings | File Templates.
+ * Types of relations
  */
 public class RelationType {
-    public static final String VERSION = "Version";
+    public static final String VERSION = "VersionNode";
     public static final String DEPENDENCY = "Dependency";
+    public static final String HAS = "has";
+    public static final String SUBGROUP = "SubGroup";
 }

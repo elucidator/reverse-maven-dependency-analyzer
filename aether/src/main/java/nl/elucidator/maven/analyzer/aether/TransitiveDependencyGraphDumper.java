@@ -25,15 +25,11 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 7/11/12
- * Time: 4:29 PM
- * To change this template use File | Settings | File Templates.
+ * Dumper
  */
 public class TransitiveDependencyGraphDumper implements DependencyVisitor {
     Stack<DependencyNode> stack = new Stack<DependencyNode>();
-    List<String> nodes = new ArrayList<>();
+    List<String> nodes = new ArrayList<String>();
 
     @Override
     public boolean visitEnter(DependencyNode node) {

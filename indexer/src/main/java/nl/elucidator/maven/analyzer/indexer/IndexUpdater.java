@@ -16,14 +16,9 @@
 
 package nl.elucidator.maven.analyzer.indexer;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.NexusIndexer;
 import org.apache.maven.index.context.IndexCreator;
-import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
-import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
 import org.apache.maven.index.updater.IndexUpdateRequest;
 import org.apache.maven.index.updater.IndexUpdateResult;
 import org.apache.maven.index.updater.ResourceFetcher;
@@ -40,11 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 6/12/12
- * Time: 9:52 PM
- * To change this template use File | Settings | File Templates.
+ * Update/download of the Nexus index
  */
 public class IndexUpdater {
     // create Plexus IoC (actually SISU-plexus compat)
@@ -54,20 +45,24 @@ public class IndexUpdater {
     // Create context for central repository index
     IndexingContext centralContext;
     // Files where local cache is (if any) and Lucene Index should be located
-    File centralLocalCache = new File( "target/indexer/central-cache" );
-    File centralIndexDir = new File( "target/indexer/central-index" );
+    File centralLocalCache = new File("target/indexer/central-cache");
+    File centralIndexDir = new File("target/indexer/central-index");
 
-    public IndexUpdater() throws PlexusContainerException, ComponentLookupException, IOException {
+    public IndexUpdater(final String repoUrl) throws PlexusContainerException, ComponentLookupException, IOException {
         plexus = new DefaultPlexusContainer();
-        wagon = plexus.lookup( Wagon.class, "http" );
+        wagon = plexus.lookup(Wagon.class, "http");
         // lookup the indexer instance from plexus
-        NexusIndexer nexusIndexer = plexus.lookup( NexusIndexer.class );
+        NexusIndexer nexusIndexer = plexus.lookup(NexusIndexer.class);
         // Creators we want to use (search for fields it defines)
         List<IndexCreator> indexers = new ArrayList<IndexCreator>();
-        indexers.add( plexus.lookup( IndexCreator.class, "min" ) );
+        indexers.add(plexus.lookup(IndexCreator.class, "min"));
         centralContext =
-        nexusIndexer.addIndexingContextForced( "central", "central", centralLocalCache, centralIndexDir,
-                "http://nexus.pieni.nl/nexus/content/groups/public/", null, indexers );
+                nexusIndexer.addIndexingContextForced("central", "central", centralLocalCache, centralIndexDir,
+                        repoUrl, null, indexers);
+    }
+
+    public IndexUpdater() throws PlexusContainerException, ComponentLookupException, IOException {
+        this("http://nexus.pieni.nl/nexus/content/groups/public/");
     }
 
     IndexingContext getIndexContext() {
@@ -75,24 +70,19 @@ public class IndexUpdater {
     }
 
     public IndexUpdateResult update() throws ComponentLookupException, IOException {
-        ResourceFetcher resourceFetcher = new WagonHelper.WagonFetcher( wagon, listener, null, null );
+        ResourceFetcher resourceFetcher = new WagonHelper.WagonFetcher(wagon, listener, null, null);
 
         Date centralContextCurrentTimestamp = centralContext.getTimestamp();
-        IndexUpdateRequest updateRequest = new IndexUpdateRequest( centralContext, resourceFetcher );
-        org.apache.maven.index.updater.IndexUpdater updater = plexus.lookup( org.apache.maven.index.updater.IndexUpdater.class );
-        IndexUpdateResult updateResult = updater.fetchAndUpdateIndex( updateRequest );
-        if ( updateResult.isFullUpdate() )
-        {
-            System.out.println( "Full update happened!" );
-        }
-        else if ( updateResult.getTimestamp().equals( centralContextCurrentTimestamp ) )
-        {
-            System.out.println( "No update needed, index is up to date!" );
-        }
-        else
-        {
-            System.out.println( "Incremental update happened, change covered " + centralContextCurrentTimestamp
-                    + " - " + updateResult.getTimestamp() + " period." );
+        IndexUpdateRequest updateRequest = new IndexUpdateRequest(centralContext, resourceFetcher);
+        org.apache.maven.index.updater.IndexUpdater updater = plexus.lookup(org.apache.maven.index.updater.IndexUpdater.class);
+        IndexUpdateResult updateResult = updater.fetchAndUpdateIndex(updateRequest);
+        if (updateResult.isFullUpdate()) {
+            System.out.println("Full update happened!");
+        } else if (updateResult.getTimestamp().equals(centralContextCurrentTimestamp)) {
+            System.out.println("No update needed, index is up to date!");
+        } else {
+            System.out.println("Incremental update happened, change covered " + centralContextCurrentTimestamp
+                    + " - " + updateResult.getTimestamp() + " period.");
         }
 
         System.out.println();

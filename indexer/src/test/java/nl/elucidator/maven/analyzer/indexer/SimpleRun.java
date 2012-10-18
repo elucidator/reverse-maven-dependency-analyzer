@@ -18,28 +18,20 @@ package nl.elucidator.maven.analyzer.indexer;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.maven.index.ArtifactInfo;
-import org.apache.maven.index.ArtifactInfoGroup;
 import org.apache.maven.index.context.UnsupportedExistingLuceneIndexException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 6/12/12
- * Time: 9:57 PM
- * To change this template use File | Settings | File Templates.
+ * Simple test
  */
 public class SimpleRun {
     public static void main(String[] args) throws IOException, PlexusContainerException, ComponentLookupException, UnsupportedExistingLuceneIndexException, ParseException {
 
-        IndexSearcher searcher =  new IndexSearcher();
+        IndexSearcher searcher = new IndexSearcher(/*"http://mirrors.ibiblio.org/maven2/"*/);
         searcher.update();
         Set<ArtifactInfo> result = searcher.getUniqueGAV();
         System.out.println("result.size() = " + result.size());

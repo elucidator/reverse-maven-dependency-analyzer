@@ -30,18 +30,16 @@ import org.sonatype.aether.util.artifact.JavaScopes;
 /**
  * Resolves a single artifact.
  */
-public class ResolveArtifact
-{
+public class ResolveArtifact {
 
-    public static void main( String[] args )
-            throws Exception
-    {
-        System.out.println( "------------------------------------------------------------" );
-        System.out.println( ResolveArtifact.class.getSimpleName() );
+    public static void main(String[] args)
+            throws Exception {
+        System.out.println("------------------------------------------------------------");
+        System.out.println(ResolveArtifact.class.getSimpleName());
 
         RepositorySystem system = Booter.newRepositorySystem();
 
-        RepositorySystemSession session = Booter.newRepositorySystemSession( system );
+        RepositorySystemSession session = Booter.newRepositorySystemSession(system);
 
         RemoteRepository repo = Booter.newCentralRepository();
 
@@ -53,15 +51,16 @@ public class ResolveArtifact
         //DefaultArtifact artifact = new DefaultArtifact("org.apache.maven.plugins:maven-compiler-plugin:2.3");
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRoot( new Dependency( artifact, JavaScopes.COMPILE ) );
-        collectRequest.addRepository( repo );
+        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+        collectRequest.addRepository(repo);
 
-        CollectResult collectResult = system.collectDependencies( session, collectRequest );
+        CollectResult collectResult = system.collectDependencies(session, collectRequest);
 
         System.out.println("Graph");
-        collectResult.getRoot().accept( new ConsoleDependencyGraphDumper() );
+        collectResult.getRoot().accept(new ConsoleDependencyGraphDumper());
         System.out.println("Transitive");
-        collectResult.getRoot().accept(new TransitiveDependencyGraphDumper());
+        TransitiveDependencyGraphDumper transitiveDependencyGraphDumper = new TransitiveDependencyGraphDumper();
+        collectResult.getRoot().accept(transitiveDependencyGraphDumper);
         System.out.println("Flat");
         collectResult.getRoot().accept(new FlatDependencyGraphDumper());
     }

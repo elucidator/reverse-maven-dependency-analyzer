@@ -23,9 +23,9 @@ import org.springframework.data.neo4j.annotation.StartNode;
 
 /**
  * Relation between Artifacts.
- * Actually the relation is between {@link Version}s of a {@link Artifact}
+ * Actually the relation is between {@link VersionNode}s of a {@link ArtifactNode}
  * Note that the relations are not loaded eagerly by Spring.
- * Thus to get the {@link Version} nodes you must load explicitly.
+ * Thus to get the {@link VersionNode} nodes you must load explicitly.
  */
 @RelationshipEntity(type = RelationType.DEPENDENCY)
 public class DependencyRelation {
@@ -33,11 +33,11 @@ public class DependencyRelation {
     private Long nodeId;
     private Scope scope;
     @StartNode
-    Version startNode;
+    VersionNode startNode;
     @EndNode
-    Version endNode;
+    VersionNode endNode;
 
-    public DependencyRelation(Scope scope, Version startNode, Version endNode) {
+    public DependencyRelation(Scope scope, VersionNode startNode, VersionNode endNode) {
         this.scope = scope;
         this.startNode = startNode;
         this.endNode = endNode;
@@ -54,11 +54,11 @@ public class DependencyRelation {
         return scope;
     }
 
-    public Version getStartNode() {
+    public VersionNode getStartNode() {
         return startNode;
     }
 
-    public Version getEndNode() {
+    public VersionNode getEndNode() {
         return endNode;
     }
 }

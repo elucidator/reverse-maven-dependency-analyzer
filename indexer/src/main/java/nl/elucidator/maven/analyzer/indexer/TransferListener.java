@@ -32,16 +32,18 @@ public class TransferListener extends AbstractTransferListener {
     private long progress_block;
     private long lastSizeReport = 0;
     private static final long SIZE_1M = 1024 * 1024;
+    long startTime;
+
 
     @Override
-    public void transferStarted( TransferEvent transferEvent )
-    {
+    public void transferStarted(TransferEvent transferEvent) {
         LOGGER.info("Downloading " + transferEvent.getResource().getName());
         timestamp = transferEvent.getTimestamp();
         long totalSize;
         this.transfer = 0;
         this.progress_block = 0;
         LOGGER.info("transferStarted");
+        startTime = System.currentTimeMillis();
         if ((transferEvent.getEventType() == TransferEvent.TRANSFER_STARTED) /* 1 */
                 &&
                 (transferEvent.getRequestType() == TransferEvent.REQUEST_GET) /* 5 */) {
@@ -56,19 +58,18 @@ public class TransferListener extends AbstractTransferListener {
     }
 
     @Override
-    public void transferProgress( TransferEvent transferEvent, byte[] buffer, int length )
-    {
+    public void transferProgress(TransferEvent transferEvent, byte[] buffer, int length) {
         transfer += length;
         progress_block += length;
         //Report each Mb
         if ((transfer / SIZE_1M) != this.lastSizeReport) {
-            LOGGER.info("Transferred " + transfer / SIZE_1M + "Mb (" + transfer + " bytes)");
+            LOGGER.info("Transferred " + transfer / SIZE_1M + "Mb (" + transfer + " bytes) " + (transfer / ((System.currentTimeMillis()) / 1000) - startTime) / 1024 + " Kb/S");
             this.lastSizeReport = transfer / SIZE_1M;
         }
     }
 
     @Override
-    public void transferCompleted( TransferEvent transferEvent) {
+    public void transferCompleted(TransferEvent transferEvent) {
         final double duration = (double) (transferEvent.getTimestamp() - timestamp) / 1000;
 
         final String message = "Transfer finished. " + transfer / SIZE_1M + "Mb (" + transfer + " bytes) copied in " + duration + " seconds";
@@ -77,7 +78,7 @@ public class TransferListener extends AbstractTransferListener {
     }
 
     @Override
-    public void transferError( TransferEvent transferEvent) {
+    public void transferError(TransferEvent transferEvent) {
         LOGGER.info("Transfer error: " + transferEvent.getException());
     }
 

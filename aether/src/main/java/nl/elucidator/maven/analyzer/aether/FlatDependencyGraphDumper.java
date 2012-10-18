@@ -19,21 +19,17 @@ package nl.elucidator.maven.analyzer.aether;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 7/11/12
- * Time: 4:47 PM
- * To change this template use File | Settings | File Templates.
+ * Dumper
  */
 public class FlatDependencyGraphDumper implements DependencyVisitor {
     private DependencyNode root;
-    List<String> nodes = new ArrayList<>();
+    List<String> nodes = new ArrayList<String>();
+
     @Override
     public boolean visitEnter(DependencyNode node) {
         if (root == null) {

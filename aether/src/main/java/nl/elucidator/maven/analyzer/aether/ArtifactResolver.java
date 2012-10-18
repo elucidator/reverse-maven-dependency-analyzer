@@ -22,7 +22,6 @@ import org.sonatype.aether.collection.CollectRequest;
 import org.sonatype.aether.collection.CollectResult;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -31,11 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 7/12/12
- * Time: 10:22 PM
- * To change this template use File | Settings | File Templates.
+ * Resolver for artifacts
  */
 public class ArtifactResolver {
 
@@ -57,15 +52,15 @@ public class ArtifactResolver {
         //DefaultArtifact artifact = new DefaultArtifact("org.apache.maven.plugins:maven-compiler-plugin:2.3");
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRoot( new Dependency( artifact, JavaScopes.COMPILE ) );
-        collectRequest.addRepository( repo );
+        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+        collectRequest.addRepository(repo);
 
-        CollectResult collectResult = system.collectDependencies( session, collectRequest );
+        CollectResult collectResult = system.collectDependencies(session, collectRequest);
 
         FlatDependencyGraphDumper flat = new FlatDependencyGraphDumper();
         collectResult.getRoot().accept(flat);
 
-        List<String> nodes = new ArrayList<>();
+        List<String> nodes = new ArrayList<String>();
         nodes.addAll(flat.getNodes());
 
         TransitiveDependencyGraphDumper transitive = new TransitiveDependencyGraphDumper();

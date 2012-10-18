@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package nl.elucidator.maven.analyzer.database.model;
+package nl.elucidator.maven.analyzer.database.repository;
+
+import nl.elucidator.maven.analyzer.database.model.GroupNode;
+import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.neo4j.repository.NamedIndexRepository;
+import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
 
 /**
- * Available package formats
+ * Group repository
  */
-public enum Packaging {
-    jar
+public interface GroupRepository extends GraphRepository<GroupNode>,
+        NamedIndexRepository<GroupNode>,
+        RelationshipOperationsRepository<GroupNode> {
+
+    GroupNode findByG(final String g);
 }

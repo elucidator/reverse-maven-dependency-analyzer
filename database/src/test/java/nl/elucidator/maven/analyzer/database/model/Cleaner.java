@@ -19,26 +19,29 @@ package nl.elucidator.maven.analyzer.database.model;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.IndexManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.rest.SpringRestGraphDatabase;
 import org.springframework.data.neo4j.support.DelegatingGraphDatabase;
 import org.springframework.data.neo4j.template.Neo4jOperations;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/3/12
- * Time: 8:57 AM
- * To change this template use File | Settings | File Templates.
+ * Clean the DB
  */
+
+@Component
 public class Cleaner {
-    private SpringRestGraphDatabase graph;
+    @Autowired
+    private GraphDatabaseService graph;
 
     public Cleaner(Neo4jOperations template) {
-        this.graph = ((SpringRestGraphDatabase)template.getGraphDatabase());
+        this.graph = ((DelegatingGraphDatabase) template.getGraphDatabase()).getGraphDatabaseService();
+
+    }
+
+    public Cleaner() {
     }
 
     public Map<String, Object> cleanDb() {
@@ -74,6 +77,11 @@ public class Cleaner {
 
     private void clearIndex(Map<String, Object> result) {
         IndexManager indexManager = graph.index();
+        System.out.println("indexManager = " + indexManager);
+        //indexManager.getNodeAutoIndexer().getAutoIndex().getEntityType()
+        for (String s : indexManager.nodeIndexNames()) {
+
+        }
         result.put("node-indexes", Arrays.asList(indexManager.nodeIndexNames()));
         result.put("relationship-indexes", Arrays.asList(indexManager.relationshipIndexNames()));
         for (String ix : indexManager.nodeIndexNames()) {
@@ -82,5 +90,8 @@ public class Cleaner {
         for (String ix : indexManager.relationshipIndexNames()) {
             indexManager.forRelationships(ix).delete();
         }
+
+        indexManager.getNodeAutoIndexer().setEnabled(true);
+
     }
 }

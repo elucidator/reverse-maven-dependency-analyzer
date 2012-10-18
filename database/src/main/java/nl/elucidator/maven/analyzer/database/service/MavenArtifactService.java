@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package nl.elucidator.maven.analyzer.database.model;
+package nl.elucidator.maven.analyzer.database.service;
 
-import java.util.Set;
+import nl.elucidator.maven.analyzer.database.model.Scope;
+import nl.elucidator.maven.analyzer.database.model.VersionNode;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Created with IntelliJ IDEA.
- * User: pieter
- * Date: 10/2/12
- * Time: 7:57 PM
- * To change this template use File | Settings | File Templates.
+ * Services towards the database
  */
-public class Group {
-    private String group;
-    private Set<Group> groups;
-    private Set<Artifact> artifacts;
+public interface MavenArtifactService {
 
+    @Transactional
+    VersionNode addArtifact(final String gav);
+
+
+    @Transactional
+    void addRelation(final VersionNode from, final VersionNode to, final Scope scope);
 }

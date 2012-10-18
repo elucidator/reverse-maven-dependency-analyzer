@@ -17,7 +17,9 @@
 package nl.elucidator.maven.analyzer.database.model;
 
 import org.neo4j.graphdb.Direction;
+import org.sonatype.aether.artifact.Artifact;
 import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
 
@@ -25,30 +27,50 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Version of an {@link Artifact}
+ * VersionNode of an {@link ArtifactNode}
  */
 @NodeEntity
-public class Version {
+public class VersionNode {
     @GraphId
     private Long nodeId;
     private String version;
+    private String extension;
+    private String classifier;
 
+    @Indexed(unique = true)
+    private String gav;
     @RelatedToVia(type = RelationType.DEPENDENCY, direction = Direction.OUTGOING)
     private Set<DependencyRelation> dependencies;
 
+
+    public VersionNode(final Artifact artifact) {
+        this.version = artifact.getVersion();
+        this.gav = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+        this.extension = artifact.getExtension();
+        this.classifier = artifact.getClassifier();
+    }
+
+
     /**
      * Constructor
-     * @param version version
+     *
+     * @param gav version
      */
-    public Version(String version) {
-        this.version = version;
+    public VersionNode(final String gav) {
+        //TODO split all elements
+        String[] splitted = gav.split(":");
+        if (splitted.length < 3) {
+            throw new IllegalArgumentException("A GAV has at least 3 elements, " + gav + "does not.");
+        }
+        this.version = splitted[2];
+        this.gav = gav;
     }
 
     /**
      * Default constructor required by Spring
      * private to prevent empty construction
      */
-    private Version() {
+    private VersionNode() {
         //Left empty
     }
 
@@ -73,7 +95,7 @@ public class Version {
 
     @Override
     public String toString() {
-        return "Version{" +
+        return "VersionNode{" +
                 "nodeId=" + nodeId +
                 ", version='" + version + '\'' +
                 '}';

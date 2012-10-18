@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package nl.elucidator.maven.analyzer.database;
+package nl.elucidator.maven.analyzer.database.repository;
 
-import nl.elucidator.maven.analyzer.database.model.Artifact;
+import nl.elucidator.maven.analyzer.database.model.VersionNode;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.neo4j.repository.NamedIndexRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
 
 /**
- * Data Repository for Artifacts
- * (Spring does all the magic @see http://java.dzone.com/articles/domain-modeling-spring-data)
+ * Repository of version nodes
  */
-public interface ArtifactRepository extends GraphRepository<Artifact>,
-        NamedIndexRepository<Artifact>,
-        RelationshipOperationsRepository<Artifact> {
+public interface VersionRepository extends GraphRepository<VersionNode>,
+        NamedIndexRepository<VersionNode>,
+        RelationshipOperationsRepository<VersionNode> {
 
-    Artifact findByGa(String ga);
+    VersionNode findByGav(final String gav);
 }
