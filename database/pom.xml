@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.6.1</slf4j.version>
-        <spring-data-neo4j.version>2.1.0.BUILD-SNAPSHOT</spring-data-neo4j.version>
+        <spring-data-neo4j.version>2.1.0.RELEASE</spring-data-neo4j.version>
         <aspectj.version>1.7.0</aspectj.version>
         <neo4j.version>1.8</neo4j.version>
     </properties>
@@ -236,6 +236,11 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-util</artifactId>
+            <version>1.13.1</version>
         </dependency>
     </dependencies>
     <build>

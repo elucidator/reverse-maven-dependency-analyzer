@@ -18,8 +18,11 @@ package nl.elucidator.maven.analyzer.database.model;
 
 import nl.elucidator.maven.analyzer.database.repository.ArtifactRepository;
 import nl.elucidator.maven.analyzer.database.repository.GroupRepository;
+import nl.elucidator.maven.analyzer.database.repository.VersionRepository;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.template.Neo4jOperations;
@@ -36,6 +39,8 @@ public abstract class AbstractDatabaseTest {
     protected ArtifactRepository artifactRepository;
     @Autowired
     protected GroupRepository groupRepository;
+    @Autowired
+    protected VersionRepository versionRepository;
 
     @Autowired
     protected Neo4jOperations template;
@@ -56,6 +61,20 @@ public abstract class AbstractDatabaseTest {
         for (ArtifactNode artifactNode : artifactNodes) {
             template.delete(artifactNode);
         }
+    }
+
+
+    protected Artifact makeArtifact(final String g, final String a, final String v, final String extension, final String classifier) {
+        return new DefaultArtifact(g, a, classifier, extension, v);
+    }
+
+    protected Artifact makeArtifact(final String g, final String a, final String v) {
+        return makeArtifact(g, a, v, "jar", null);
+    }
+
+    protected Artifact makeArtifact(final String gav) {
+        String[] splitter = gav.split(":");
+        return makeArtifact(splitter[0], splitter[1], splitter[2]);
     }
 
 }

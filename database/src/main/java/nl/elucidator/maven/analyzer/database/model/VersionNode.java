@@ -18,10 +18,7 @@ package nl.elucidator.maven.analyzer.database.model;
 
 import org.neo4j.graphdb.Direction;
 import org.sonatype.aether.artifact.Artifact;
-import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
-import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedToVia;
+import org.springframework.data.neo4j.annotation.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,8 +31,10 @@ public class VersionNode {
     @GraphId
     private Long nodeId;
     private String version;
-    private String extension;
-    private String classifier;
+    @Fetch
+    private Set<String> extensions;
+    @Fetch
+    private Set<String> classifiers;
 
     @Indexed(unique = true)
     private String gav;
@@ -46,25 +45,17 @@ public class VersionNode {
     public VersionNode(final Artifact artifact) {
         this.version = artifact.getVersion();
         this.gav = artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
-        this.extension = artifact.getExtension();
-        this.classifier = artifact.getClassifier();
+        addExtensions(artifact.getExtension());
+        addClassifier(artifact.getClassifier());
     }
 
-
-    /**
-     * Constructor
-     *
-     * @param gav version
-     */
-    public VersionNode(final String gav) {
-        //TODO split all elements
-        String[] splitted = gav.split(":");
-        if (splitted.length < 3) {
-            throw new IllegalArgumentException("A GAV has at least 3 elements, " + gav + "does not.");
+    private boolean addExtensions(String extension) {
+        if (extensions == null) {
+            extensions = new HashSet<String>();
         }
-        this.version = splitted[2];
-        this.gav = gav;
+        return extensions.add(extension);
     }
+
 
     /**
      * Default constructor required by Spring
@@ -72,6 +63,17 @@ public class VersionNode {
      */
     private VersionNode() {
         //Left empty
+    }
+
+    public boolean addClassifier(final String classifier) {
+        if (classifier == null || classifier.isEmpty()) {
+            return false;
+        }
+        if (classifiers == null) {
+            classifiers = new HashSet<String>();
+        }
+
+        return classifiers.add(classifier);
     }
 
     public void addDependency(DependencyRelation dependency) {
@@ -93,11 +95,37 @@ public class VersionNode {
         return version;
     }
 
+    public Set<String> getExtensions() {
+        return extensions;
+    }
+
+    public Set<String> getClassifiers() {
+        return classifiers;
+    }
+
+    public String getGav() {
+        return gav;
+    }
+
     @Override
     public String toString() {
         return "VersionNode{" +
                 "nodeId=" + nodeId +
                 ", version='" + version + '\'' +
+                ", classifier='" + classifiers + '\'' +
+                ", extension='" + extensions + '\'' +
                 '}';
+    }
+
+    /**
+     * update data for the artifact. This can be either a classifier or an extension
+     *
+     * @param artifact the artifact
+     * @return true when something has changes
+     */
+    public boolean update(Artifact artifact) {
+        boolean extensionAdded = addExtensions(artifact.getExtension());
+        boolean classifierAdded = addClassifier(artifact.getClassifier());
+        return extensionAdded || classifierAdded;
     }
 }

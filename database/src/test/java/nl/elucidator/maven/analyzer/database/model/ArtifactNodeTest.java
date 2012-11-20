@@ -31,27 +31,25 @@ public class ArtifactNodeTest extends AbstractDatabaseTest {
     @Test
     @Transactional
     public void storeAndRetrieve() {
-        ArtifactNode toSave = new ArtifactNode("groupIdA", "artifactIdA");
+        ArtifactNode toSave = new ArtifactNode(makeArtifact("groupIdA:artifactIdA:1.0"));
         ArtifactNode artifactNode = template.save(toSave);
         ArtifactNode retrieve = template.findOne(artifactNode.getNodeId(), ArtifactNode.class);
         assertEquals(artifactNode.getArtifactId(), retrieve.getArtifactId());
-        System.out.println("retrieve.getNodeId() = " + retrieve.getNodeId());
     }
 
     @Test
     @Transactional
     public void versionRelations() {
 
-        ArtifactNode artifactNode = new ArtifactNode("groupIdB", "artifactIdB");
+        ArtifactNode artifactNode = new ArtifactNode(makeArtifact("groupIdB:artifactIdB:1.0"));
         artifactNode = template.save(artifactNode);
-        System.out.println("artifactNode.getNodeId() = " + artifactNode.getNodeId());
 
-        VersionNode versionNode1_0 = new VersionNode(artifactNode.getGroupId() + ":" + artifactNode.getArtifactId() + ":" + "1.0");
+        VersionNode versionNode1_0 = new VersionNode(makeArtifact(artifactNode.getGroupId() + ":" + artifactNode.getArtifactId() + ":" + "1.0"));
         versionNode1_0 = template.save(versionNode1_0);
         template.save(versionNode1_0);
         artifactNode.addVersion(versionNode1_0);
 
-        VersionNode versionNode1_1 = new VersionNode(artifactNode.getGroupId() + ":" + artifactNode.getArtifactId() + ":" + "1.1");
+        VersionNode versionNode1_1 = new VersionNode(makeArtifact(artifactNode.getGroupId() + ":" + artifactNode.getArtifactId() + ":" + "1.1"));
         versionNode1_1 = template.save(versionNode1_1);
         template.save(versionNode1_1);
         artifactNode.addVersion(versionNode1_1);
@@ -70,13 +68,12 @@ public class ArtifactNodeTest extends AbstractDatabaseTest {
     @Transactional
     public void versions() {
 
-        ArtifactNode artifactNode = new ArtifactNode("groupIdC", "artifactIdC");
-        VersionNode versionNode1_0 = new VersionNode("groupIdC:artifactIdC:1.0");
-        VersionNode versionNode1_1 = new VersionNode("groupIdC:artifactIdC:1.1");
+        ArtifactNode artifactNode = new ArtifactNode(makeArtifact("groupIdC:artifactIdC:1.0"));
+        VersionNode versionNode1_0 = new VersionNode(makeArtifact("groupIdC:artifactIdC:1.0"));
+        VersionNode versionNode1_1 = new VersionNode(makeArtifact("groupIdC:artifactIdC:1.1"));
         artifactNode.addVersion(versionNode1_0);
         artifactNode.addVersion(versionNode1_1);
         artifactNode = template.save(artifactNode);
-        System.out.println("artifactNode.getNodeId() = " + artifactNode.getNodeId());
 
         ArtifactNode retrieved = this.artifactRepository.findByGa(artifactNode.getGa());
 
@@ -89,7 +86,7 @@ public class ArtifactNodeTest extends AbstractDatabaseTest {
 
     @Test
     public void toStringTest() {
-        ArtifactNode artifactNode = new ArtifactNode("groupId", "artifactId");
+        ArtifactNode artifactNode = new ArtifactNode(makeArtifact("groupId:artifactId:1.0"));
         assertTrue(artifactNode.toString().contains("groupId"));
         assertTrue(artifactNode.toString().contains("artifactId"));
 
@@ -98,10 +95,10 @@ public class ArtifactNodeTest extends AbstractDatabaseTest {
     @Test
     @Transactional
     public void doubleAdd() {
-        ArtifactNode artifact_Node_1 = new ArtifactNode("A", "B");
+        ArtifactNode artifact_Node_1 = new ArtifactNode(makeArtifact("A:B:1.0"));
         template.save(artifact_Node_1);
 
-        ArtifactNode artifact_Node_2 = new ArtifactNode("A", "B");
+        ArtifactNode artifact_Node_2 = new ArtifactNode(makeArtifact("A:B:1.0"));
         template.save(artifact_Node_2);
 
         ArtifactNode retrieve = this.artifactRepository.findByGa("A:B");

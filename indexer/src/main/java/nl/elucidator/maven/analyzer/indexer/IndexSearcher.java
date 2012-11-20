@@ -19,9 +19,14 @@ package nl.elucidator.maven.analyzer.indexer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
-import org.apache.maven.index.ArtifactInfo;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.maven.index.*;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
+import org.apache.maven.index.expr.StringSearchExpression;
+import org.apache.maven.index.search.grouping.GAGrouping;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -30,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,19 +47,28 @@ public class IndexSearcher {
     // create Plexus IoC (actually SISU-plexus compat)
     private final DefaultPlexusContainer plexus;
     private final IndexUpdater indexUpdater;
+    private final NexusIndexer indexer;
 
-    public IndexSearcher(final String repoUrl) throws PlexusContainerException, ComponentLookupException, IOException {
+    public IndexSearcher(final String repoUrl, final String workBaseDirectory) throws PlexusContainerException, ComponentLookupException, IOException {
         plexus = new DefaultPlexusContainer();
-        indexUpdater = new IndexUpdater(repoUrl);
-    }
+        indexUpdater = new IndexUpdater(repoUrl, workBaseDirectory);
+        indexer = indexUpdater.getNexusIndexer();
 
-    public IndexSearcher() throws PlexusContainerException, ComponentLookupException, IOException {
-        plexus = new DefaultPlexusContainer();
-        indexUpdater = new IndexUpdater();
     }
 
     public void update() throws IOException, ComponentLookupException {
         indexUpdater.update();
+    }
+
+    public Map<String, ArtifactInfoGroup> searchGa(final List<String> groups) throws IOException {
+
+        Query query = createQuery(groups);
+
+        GroupedSearchRequest groupedSearchRequest = new GroupedSearchRequest(query, new GAGrouping());
+
+        GroupedSearchResponse flatSearchResponse = indexer.searchGrouped(groupedSearchRequest);
+
+        return flatSearchResponse.getResults();
     }
 
     public Set<ArtifactInfo> getUniqueGAV() throws IOException, ComponentLookupException {
@@ -68,7 +84,9 @@ public class IndexSearcher {
                     final Document doc = ir.document(i);
 
                     final ArtifactInfo ai = IndexUtils.constructArtifactInfo(doc, centralContext);
-                    artifactInfoSet.add(ai);
+                    if (ai != null) {
+                        artifactInfoSet.add(ai);
+                    }
                 }
             }
 
@@ -80,5 +98,36 @@ public class IndexSearcher {
             centralContext.unlock();
         }
         return artifactInfoSet;
+    }
+
+    /**
+     * Create the query to perform
+     *
+     * @param groupPatterns list of patters to search for
+     * @return {@link org.apache.lucene.search.BooleanQuery}
+     */
+    private Query createQuery(final List<String> groupPatterns) {
+        BooleanQuery bq = new BooleanQuery();
+
+        Query query;
+
+        Field field = MAVEN.GROUP_ID;
+        BooleanQuery groupQuery = new BooleanQuery();
+        for (String pattern : groupPatterns) {
+
+            StringSearchExpression expression = new StringSearchExpression(pattern);
+            query = indexer.constructQuery(field, expression);
+            groupQuery.add(query, BooleanClause.Occur.SHOULD);
+        }
+        bq.add(groupQuery, BooleanClause.Occur.MUST);
+
+        Query queryClassifierSources = indexer.constructQuery(MAVEN.CLASSIFIER, new StringSearchExpression("sources"));
+        Query queryClassifierJavaDoc = indexer.constructQuery(MAVEN.CLASSIFIER, new StringSearchExpression("javadoc"));
+
+        bq.add(new BooleanClause(queryClassifierJavaDoc, BooleanClause.Occur.MUST_NOT));
+        bq.add(new BooleanClause(queryClassifierSources, BooleanClause.Occur.MUST_NOT));
+
+        return bq;
+
     }
 }

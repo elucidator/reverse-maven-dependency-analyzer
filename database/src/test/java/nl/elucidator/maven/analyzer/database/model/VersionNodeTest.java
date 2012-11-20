@@ -17,7 +17,10 @@
 package nl.elucidator.maven.analyzer.database.model;
 
 import org.junit.Test;
+import org.sonatype.aether.artifact.Artifact;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -30,20 +33,20 @@ public class VersionNodeTest extends AbstractDatabaseTest {
 
     @Test
     public void basic() {
-        VersionNode versionNode = new VersionNode("a:b:1.0");
+        VersionNode versionNode = new VersionNode(makeArtifact("a:b:1.0"));
         assertEquals("1.0", versionNode.getVersion());
         assertNull(versionNode.getDependencies());
     }
 
     @Test
     public void toStringTest() {
-        VersionNode versionNode = new VersionNode("a:b:1.0");
+        VersionNode versionNode = new VersionNode(makeArtifact("a:b:1.0"));
         assertTrue(versionNode.toString().contains("1.0"));
     }
 
     @Test
     public void dependencies() {
-        VersionNode versionNode = new VersionNode("a:b:1.0");
+        VersionNode versionNode = new VersionNode(makeArtifact("a:b:1.0"));
         DependencyRelation relation = mock(DependencyRelation.class);
         versionNode.addDependency(relation);
         assertEquals(1, versionNode.getDependencies().size());
@@ -53,11 +56,10 @@ public class VersionNodeTest extends AbstractDatabaseTest {
     @Transactional
     @Test
     public void dependency() {
-        VersionNode versionNodeA = new VersionNode("a:b:a1");
+        VersionNode versionNodeA = new VersionNode(makeArtifact("a:b:a1"));
         template.save(versionNodeA);
-        System.out.println("versionNodeA = " + template.save(versionNodeA).getNodeId());
 
-        VersionNode versionNodeB = new VersionNode("a:b:c1");
+        VersionNode versionNodeB = new VersionNode(makeArtifact("a:b:c1"));
         template.save(versionNodeB);
 
         DependencyRelation dependencyRelation = new DependencyRelation(Scope.Compile, versionNodeA, versionNodeB);
@@ -72,4 +74,25 @@ public class VersionNodeTest extends AbstractDatabaseTest {
         assertEquals(versionNodeB.getNodeId(), retrievedRelation.getEndNode().getNodeId());
         assertEquals(versionNodeA.getNodeId(), retrievedRelation.getStartNode().getNodeId());
     }
+
+    @Test
+    public void sourceClassifier() {
+        Artifact artifact = new org.sonatype.aether.util.artifact.DefaultArtifact("a", "b", "source", "jar", "1.0");
+        VersionNode versionNode = new VersionNode(artifact);
+        template.save(versionNode);
+
+        VersionNode retrieved = template.findOne(versionNode.getNodeId(), VersionNode.class);
+        assertEquals("a", retrieved.getGav().split(":")[0]);
+        assertEquals("b", retrieved.getGav().split(":")[1]);
+        assertEquals("1.0", retrieved.getGav().split(":")[2]);
+
+        Set<String> classifiers = retrieved.getClassifiers();
+        assertNotNull(classifiers);
+        assertEquals(1, classifiers.size());
+        assertEquals("source", classifiers.iterator().next());
+
+    }
+
+
+    //TODO Test methods to add the different classifiers into the node.i.e. sources, test-jar, ...
 }

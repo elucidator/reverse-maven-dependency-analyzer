@@ -17,9 +17,12 @@
 package nl.elucidator.maven.analyzer.database.repository;
 
 import nl.elucidator.maven.analyzer.database.model.VersionNode;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.neo4j.repository.NamedIndexRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
+
+import java.util.List;
 
 /**
  * Repository of version nodes
@@ -29,4 +32,7 @@ public interface VersionRepository extends GraphRepository<VersionNode>,
         RelationshipOperationsRepository<VersionNode> {
 
     VersionNode findByGav(final String gav);
+
+    @Query("start n=node:VersionNode(gav={0}) match n <-[r?:Dependency*]- b return distinct(b)")
+    List<VersionNode> getDependentVersions(String gav);
 }

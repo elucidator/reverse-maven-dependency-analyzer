@@ -30,4 +30,6 @@ public interface ArtifactRepository extends GraphRepository<ArtifactNode>,
         RelationshipOperationsRepository<ArtifactNode> {
 
     ArtifactNode findByGa(String ga);
+
+
 }

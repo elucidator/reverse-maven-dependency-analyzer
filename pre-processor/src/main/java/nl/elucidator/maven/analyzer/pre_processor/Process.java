@@ -49,14 +49,14 @@ public class Process {
     private int artifactCount;
 
     public Process() throws IOException, PlexusContainerException, ComponentLookupException {
-        indexSearcher = new IndexSearcher();
+        indexSearcher = new IndexSearcher("", "");
         artifactResolver = new ArtifactResolver();
     }
 
     public List<String> getAllArtifacts() throws IOException, ComponentLookupException, DependencyCollectionException {
         indexSearcher.update();
         indexSearcher.getUniqueGAV();
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<String>();
 //        Set<ArtifactInfo> artifactInfoSet = indexSearcher.getUniqueGAV();
 //        Iterator<ArtifactInfo> iter = artifactInfoSet.iterator();
 //        for (int i = 0; i < 50; i++) {
@@ -70,7 +70,7 @@ public class Process {
         artifactCount = 0;
         for (ArtifactInfo artifactInfo : indexSearcher.getUniqueGAV()) {
             if (artifactInfo != null && artifactInfo.classifier == null) {
-                result.addAll(artifactResolver.resolve(artifactInfo.groupId + ":" + artifactInfo.artifactId + ":" + artifactInfo.version));
+                //result.addAll(artifactResolver.resolve(artifactInfo.groupId + ":" + artifactInfo.artifactId + ":" + artifactInfo.version));
                 artifactCount++;
             }
         }

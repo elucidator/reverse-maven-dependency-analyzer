@@ -19,39 +19,39 @@ package nl.elucidator.maven.analyzer.aether;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Stack;
+import java.io.PrintStream;
 
 /**
- * Dumper
+ * A dependency visitor that dumps the graph to the console.
  */
-public class TransitiveDependencyGraphDumper implements DependencyVisitor {
-    Stack<DependencyNode> stack = new Stack<DependencyNode>();
-    List<String> nodes = new ArrayList<String>();
+public class ConsoleDependencyGraphDumper
+        implements DependencyVisitor {
 
-    @Override
+    private PrintStream out;
+
+    private String currentIndent = "";
+
+    public ConsoleDependencyGraphDumper() {
+        this(null);
+    }
+
+    public ConsoleDependencyGraphDumper(PrintStream out) {
+        this.out = (out != null) ? out : System.out;
+    }
+
     public boolean visitEnter(DependencyNode node) {
-        if (stack.empty()) {
-            stack.push(node);
-            return true;
+        out.println(currentIndent + node);
+        if (currentIndent.length() <= 0) {
+            currentIndent = "+- ";
+        } else {
+            currentIndent = "|  " + currentIndent;
         }
-        nodes.add(stack.peek().getDependency().getArtifact() + " -> " + node.getDependency().getArtifact() + "-> " + node.getDependency().getScope());
-        stack.push(node);
-
         return true;
     }
 
-    @Override
     public boolean visitLeave(DependencyNode node) {
-        if (!stack.empty()) {
-            stack.pop();
-        }
+        currentIndent = currentIndent.substring(3, currentIndent.length());
         return true;
     }
 
-    public Collection<? extends String> getNodes() {
-        return nodes;
-    }
 }

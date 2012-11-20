@@ -18,11 +18,15 @@ package nl.elucidator.maven.analyzer.indexer;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.maven.index.ArtifactInfo;
+import org.apache.maven.index.ArtifactInfoGroup;
 import org.apache.maven.index.context.UnsupportedExistingLuceneIndexException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,9 +35,34 @@ import java.util.Set;
 public class SimpleRun {
     public static void main(String[] args) throws IOException, PlexusContainerException, ComponentLookupException, UnsupportedExistingLuceneIndexException, ParseException {
 
-        IndexSearcher searcher = new IndexSearcher(/*"http://mirrors.ibiblio.org/maven2/"*/);
+        IndexSearcher searcher = new IndexSearcher("http://nexus.pieni.nl/nexus/content/groups/public/", "target/indexer"/*"http://mirrors.ibiblio.org/maven2/"*/);
         searcher.update();
+        //dumpGav(searcher);
+
+        searchG(searcher);
+
+        //TODO get a full list of packaging, classifiers
+    }
+
+    private static void searchG(IndexSearcher searcher) throws IOException {
+        List<String> gs = new ArrayList<String>();
+        gs.add("junit");
+        Map<String, ArtifactInfoGroup> result = searcher.searchGa(gs);
+        for (String s : result.keySet()) {
+            ArtifactInfoGroup artifactInfoGroup = result.get(s);
+            for (ArtifactInfo artifactInfo : artifactInfoGroup.getArtifactInfos()) {
+                System.out.println("artifactInfo = " + artifactInfo);
+            }
+        }
+    }
+
+    private static void dumpGav(IndexSearcher searcher) throws IOException, ComponentLookupException {
         Set<ArtifactInfo> result = searcher.getUniqueGAV();
         System.out.println("result.size() = " + result.size());
+        for (ArtifactInfo artifactInfo : result) {
+            if (artifactInfo.packaging != null && artifactInfo.packaging.equalsIgnoreCase("jar")) {
+                System.out.println("artifactInfo = " + artifactInfo);
+            }
+        }
     }
 }

@@ -38,7 +38,7 @@ public class GroupNode {
     @RelatedTo(type = RelationType.HAS)
     private Set<ArtifactNode> artifactNodes;
 
-    public GroupNode(String g) {
+    public GroupNode(final String g) {
         this.g = g;
     }
 

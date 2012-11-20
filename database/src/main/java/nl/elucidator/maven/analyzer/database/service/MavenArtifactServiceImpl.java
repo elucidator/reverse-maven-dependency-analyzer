@@ -21,10 +21,13 @@ import nl.elucidator.maven.analyzer.database.repository.ArtifactRepository;
 import nl.elucidator.maven.analyzer.database.repository.GroupRepository;
 import nl.elucidator.maven.analyzer.database.repository.VersionRepository;
 import org.apache.log4j.Logger;
+import org.sonatype.aether.artifact.Artifact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.template.Neo4jOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 /**
  * Implementation of services
@@ -43,12 +46,25 @@ public class MavenArtifactServiceImpl implements MavenArtifactService {
     @Autowired
     protected Neo4jOperations template;
 
-    @Override
-    public VersionNode addArtifact(String gav) {
+
+    private String getGav(final Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+    }
+
+    public VersionNode addArtifact(final Artifact artifact) {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Processing: " + artifact.toString());
+        }
+
+        final String gav = getGav(artifact);
         VersionNode versionNode = versionRepository.findByGav(gav);
         if (versionNode != null) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Direct hit version node: " + versionNode);
+            }
+            if (versionNode.update(artifact)) {
+                template.save(versionNode);
             }
             return versionNode;
         }
@@ -57,24 +73,27 @@ public class MavenArtifactServiceImpl implements MavenArtifactService {
         ArtifactNode artifactNode = artifactRepository.findByGa(gavs[0] + ":" + gavs[1]);
         if (artifactNode != null) {
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.debug("Direct hit artifactNode: " + artifactNode);
+                LOGGER.trace("Direct hit artifactNode: " + artifactNode);
             }
-            versionNode = new VersionNode(gav);
+            versionNode = new VersionNode(artifact);
             artifactNode.addVersion(versionNode);
             template.save(artifactNode);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.debug("Added version node: " + versionNode);
+            }
             return versionNode;
         }
 
-        artifactNode = new ArtifactNode(gavs[0], gavs[1]);
+        artifactNode = new ArtifactNode(artifact);
         GroupNode groupNode = findGroup(gavs[0]);
-        versionNode = new VersionNode(gav);
+        versionNode = new VersionNode(artifact);
         artifactNode.addVersion(versionNode);
 
 
         groupNode.addArtifact(artifactNode);
         template.save(groupNode);
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.debug("Saved groupNode: " + groupNode);
+            LOGGER.trace("Saved groupNode: " + groupNode);
         }
 
         return versionNode;
@@ -94,7 +113,7 @@ public class MavenArtifactServiceImpl implements MavenArtifactService {
 
     private GroupNode findLastGroup(final String g) {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.debug("Searching group: " + g);
+            LOGGER.trace("Searching group: " + g);
         }
         GroupNode lastGroup = null;
         if (groupRepository.findByG(g) == null) {
@@ -107,7 +126,7 @@ public class MavenArtifactServiceImpl implements MavenArtifactService {
             lastGroup.addGroup(groupNode);
             template.save(lastGroup);
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.debug("Saved groupNode: " + lastGroup);
+                LOGGER.trace("Saved groupNode: " + lastGroup);
             }
         }
 
@@ -121,4 +140,44 @@ public class MavenArtifactServiceImpl implements MavenArtifactService {
         DependencyRelation relation = new DependencyRelation(scope, fromVersionNode, toVersionNode);
         template.save(relation);
     }
+
+    @Override
+    public void addRelation(Artifact from, Artifact to, String scope) {
+        VersionNode fromVersion = versionRepository.findByGav(toGav(from));
+        VersionNode toVersion = versionRepository.findByGav(toGav(to));
+        if (fromVersion == null) {
+            LOGGER.warn("Artifact " + from + " was not found in db, adding.");
+            fromVersion = addArtifact(from);
+        }
+        if (toVersion == null) {
+            LOGGER.warn("Artifact " + to + " was not found in db, adding.");
+            toVersion = addArtifact(to);
+        }
+
+        DependencyRelation relation = new DependencyRelation(Scope.fromString(scope), fromVersion, toVersion);
+        if (dependencyNotAvailable(relation)) {
+            template.save(relation);
+            LOGGER.debug("Saved relation: " + relation);
+        }
+    }
+
+    private boolean dependencyNotAvailable(final DependencyRelation relation) {
+        Set<DependencyRelation> dependencies = relation.getStartNode().getDependencies();
+
+        if (dependencies.isEmpty()) {
+            return true;
+        }
+
+        for (DependencyRelation dependency : dependencies) {
+            if (dependency.getEndNode().getNodeId().equals(relation.getEndNode().getNodeId()) && dependency.getScope().equals(relation.getScope())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String toGav(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+    }
+
 }

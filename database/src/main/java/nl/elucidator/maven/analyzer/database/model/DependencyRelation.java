@@ -61,4 +61,14 @@ public class DependencyRelation {
     public VersionNode getEndNode() {
         return endNode;
     }
+
+    @Override
+    public String toString() {
+        return "DependencyRelation{" +
+                "nodeId=" + nodeId +
+                ", scope=" + scope +
+                ", startNode=" + startNode +
+                ", endNode=" + endNode +
+                '}';
+    }
 }

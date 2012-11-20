@@ -25,33 +25,26 @@ import org.sonatype.aether.util.DefaultRepositorySystemSession;
 /**
  * A helper to boot the repository system and a repository system session.
  */
-public class Booter
-{
+public class Booter {
 
-    public static RepositorySystem newRepositorySystem()
-    {
+    public static RepositorySystem newRepositorySystem() {
         return ManualRepositorySystemFactory.newRepositorySystem();
     }
 
-    public static DefaultRepositorySystemSession newRepositorySystemSession( RepositorySystem system )
-    {
+    public static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         MavenRepositorySystemSession session = new MavenRepositorySystemSession();
 
-        LocalRepository localRepo = new LocalRepository( "target/local-repo" );
-        session.setLocalRepositoryManager( system.newLocalRepositoryManager( localRepo ) );
+        LocalRepository localRepo = new LocalRepository("target/local-repo");
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepo));
 
-        session.setTransferListener( new ConsoleTransferListener() );
-        session.setRepositoryListener( new ConsoleRepositoryListener() );
-
-        // uncomment to generate dirty trees
-        //session.setDependencyGraphTransformer( null );
+        //session.setTransferListener( new ConsoleTransferListener() );
+        session.setRepositoryListener(new ConsoleRepositoryListener());
 
         return session;
     }
 
-    public static RemoteRepository newCentralRepository()
-    {
-        return new RemoteRepository( "central", "default", "http://nexus.pieni.nl/nexus/content/groups/public/" );
+    public static RemoteRepository newCentralRepository() {
+        return new RemoteRepository("central", "default", "http://nexus.pieni.nl/nexus/content/groups/public/");
     }
 
 }

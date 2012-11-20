@@ -18,33 +18,57 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>nl.elucidator.maven.analyzer</groupId>
         <artifactId>reverse-dependency-analyzer</artifactId>
+        <groupId>nl.elucidator.maven.analyzer</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.elucidator.maven.analyzer</groupId>
-    <artifactId>pre-processor</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>loader</artifactId>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.1.2.RELEASE</spring.version>
+        <slf4j.version>1.6.1</slf4j.version>
+        <spring-data-neo4j.version>2.1.0.BUILD-SNAPSHOT</spring-data-neo4j.version>
+        <aspectj.version>1.7.0</aspectj.version>
+        <neo4j.version>1.8</neo4j.version>
+    </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>nl.elucidator.maven.analyzer</groupId>
-            <artifactId>resolver</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>nl.elucidator.maven.analyzer</groupId>
             <artifactId>indexer</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>nl.elucidator.maven.analyzer</groupId>
+            <artifactId>database</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.elucidator.maven.analyzer</groupId>
+            <artifactId>resolver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.10</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+
     </dependencies>
+
+
 </project>

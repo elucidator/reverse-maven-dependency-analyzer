@@ -18,6 +18,7 @@ package nl.elucidator.maven.analyzer.database.service;
 
 import nl.elucidator.maven.analyzer.database.model.Scope;
 import nl.elucidator.maven.analyzer.database.model.VersionNode;
+import org.sonatype.aether.artifact.Artifact;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -26,9 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 public interface MavenArtifactService {
 
     @Transactional
-    VersionNode addArtifact(final String gav);
+    VersionNode addArtifact(final Artifact artifact);
 
 
     @Transactional
     void addRelation(final VersionNode from, final VersionNode to, final Scope scope);
+
+    @Transactional
+    void addRelation(final Artifact from, final Artifact to, final String scope);
+
+
 }

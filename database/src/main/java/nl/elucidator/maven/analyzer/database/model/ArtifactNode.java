@@ -40,7 +40,6 @@ public class ArtifactNode {
     @RelatedTo(type = RelationType.VERSION)
     @Fetch
     private Set<VersionNode> versionNodes;
-    private String classifier;
 
 
     /**
@@ -54,19 +53,6 @@ public class ArtifactNode {
         this.artifactId = artifact.getArtifactId();
         this.groupId = artifact.getGroupId();
         this.ga = this.groupId + ":" + this.artifactId;
-    }
-
-
-    /**
-     * Default constructor
-     *
-     * @param groupId    groupId
-     * @param artifactId artifactId
-     */
-    public ArtifactNode(String groupId, String artifactId) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.ga = groupId + ":" + artifactId;
     }
 
     /**
