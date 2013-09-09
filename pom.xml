@@ -28,8 +28,8 @@
     <modules>
         <module>resolver</module>
         <module>indexer</module>
-        <module>rest-easy</module>
-        <module>map-reduce</module>
+        <!--<module>rest-easy</module>-->
+        <!--<module>map-reduce</module>-->
         <module>database</module>
         <!--<module>pre-processor</module>-->
         <module>loader</module>
